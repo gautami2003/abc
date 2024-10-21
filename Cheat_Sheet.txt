@@ -1,0 +1,281 @@
+ARIMA
+# Visualize the Data
+from pandas.plotting import lag_plot
+
+lag_plot(series)
+series.plot()
+#we can see data is non-stationary
+
+#To check the Stationarity
+
+from statsmodels.tsa.stattools import adfuller
+
+def adfuller_test(series):
+  result = adfuller(series)
+  print(result[0])
+  print(result[1])
+
+  if result[1]<=0.05:
+    print("The Data is Stationary")
+  else:
+    print("The Data is Non-Stationary")
+adfuller_test(series)
+
+
+def adfuller_test(series):
+  results = adfuller(series.dropna())
+  return results[1]
+
+def adfuller_diff(series):
+  p_value = adfuller_test(series)
+
+  diff_count = 0
+  while p_value > 0.05:
+    diff_count += 1
+    series = series.diff()
+    p_value = adfuller_test(series)
+
+  return diff_count
+
+adfuller_diff(series)
+
+
+#To check the Stationarity
+series = series.diff().dropna()
+from statsmodels.tsa.stattools import adfuller
+def adfuller_test(series):
+  result = adfuller(series)
+  print(result[0])
+  print(result[1])
+
+  if result[1]<=0.05:
+    print("The Data is Stationary")
+  else:
+    print("The Data is Non-Stationary")
+adfuller_test(series)
+
+series.plot()
+
+
+## Auto Correlation Plot
+from pandas.plotting import autocorrelation_plot
+
+autocorrelation_plot(series)
+plt.show()
+
+
+from statsmodels.graphics.tsaplots import plot_acf,plot_pacf
+import matplotlib.pyplot as plt
+
+fig, axes = plt.subplots(1,2,figsize=(12,8))
+
+plot_acf(series.iloc[13:],lags=10,ax=axes[0])
+plot_pacf(series.iloc[13:],lags=10,ax=axes[1])
+
+plt.tight_layout()
+plt.show()
+
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.arima.model import ARIMA
+from sklearn.metrics import mean_squared_error
+from math import sqrt
+
+train_size = int(len(series) * 0.7)
+train, test = series[:train_size], series[train_size:]
+
+# Fit ARIMA model (set d=0 if differencing already done)
+model = ARIMA(train, order=(1, 1, 1))
+model_fit = model.fit()
+
+
+# Plot diagnostics
+model_fit.plot_diagnostics(figsize=(12, 8))
+plt.show()
+
+# Make predictions
+predictions = model_fit.predict(start=len(train), end=len(series)-1)
+
+
+# Calculate RMSE
+rmse = sqrt(mean_squared_error(test, predictions))
+print(f'RMSE: {rmse}')
+
+
+# Plot actual vs predicted
+plt.figure(figsize=(10, 6))
+plt.plot(test.index,test, label='Actual', color='blue')
+plt.plot(test.index,predictions, color='red', label='Predicted')
+plt.title('Actual vs Predicted Values')
+plt.xlabel('Time')
+plt.ylabel('Values')
+plt.legend()
+plt.show()
+
+
+#3 Methods to check stationarity
+
+# 1. Stationarity Check: Plotting
+plt.figure(figsize=(12,8))
+series.plot(title="To Check the data is Stationary",xlabel="Date",ylabel="Daily Temp")
+plt.axhline(y=series.mean(),color="r",linestyle='--',label="Mean")
+plt.axhline(y=series.median(),color="g",linestyle='--',label="Median")
+plt.legend()
+plt.show()
+
+# 1. Stationarity Check: Statistics
+
+split = int(len(series)/2)
+x1 , x2 = series[:split], series[split:]
+mean1, mean2 = x1.mean() , x2.mean()
+var1, var2 = x1.var(), x2.var()
+
+print(mean1," ",mean2)
+print(var1, " ",var2)
+
+print("---"*5)
+
+if(abs(mean1 - mean2)<0.05) and (abs(var1 - var2)<1):
+  print("May be Stationary")
+else:
+  print("Not a Stationary")
+
+# 3. Stationarity Check: ADF Test
+res = adfuller(ts.values)
+print('ADF Statistic: ', res[0])
+print('p-value: ', res[1])
+for key, value in res[4].items():
+    print(f'Critical Value {key}: {value}')
+
+if res[1] <= 0.05:
+    print('Reject H0: Time series is stationary')
+else:
+    print('Do not reject H0: Time series is non-stationary')
+
+#Load and Basic Feature Engineering
+
+#Exploration
+print(ts.head(5))
+print("---"*10)
+print(ts.tail(5))
+print("---"*10)
+print(ts.isnull().sum())
+print("---"*10)
+ts.describe()
+
+#Basic Feature Engineering
+df = pd.DataFrame({
+    'Year':ts.index.year,
+    'Month':ts.index.month,
+    'Day':ts.index.day,
+    'Roberries':ts.values
+})
+
+
+#Rolling Window
+t = pd.DataFrame(ts.values)
+rolling_windows = t.rolling(window=3).agg(['min','mean','max'])
+t = pd.concat([rolling_windows,t],axis=1)
+t
+
+
+
+#ReSampling
+import matplotlib.pyplot as plt
+plt.figure(figsize=(8,4))
+plt.plot(ts,label='Original Data')
+plt.title('Original Data')
+
+
+plt.figure(figsize=(8,4))
+dn_ts = ts.resample('D').ffill()
+plt.plot(dn_ts,label='Upsampling',color='red')
+plt.title("Upsampling")
+
+
+plt.figure(figsize=(8,4))
+up_ts = ts.resample('ME').ffill()
+plt.plot(up_ts,label='DownSampling',color='green')
+plt.title('DownSampling')
+plt.show()
+
+
+# Model Evaluation and BaseLine Prediction
+
+#Model Evaluation
+ts_diff=ts.diff().dropna()
+train_size = int(len(ts_diff)*0.75)
+train , test = ts[train_size:],ts[:train_size]
+
+# Walk Forward Validation
+n_test = 10
+prediction = []
+
+for i in range(len(ts_diff) - n_test):
+  train = ts_diff[:i + len(ts_diff)-n_test]
+  test = ts_diff[i + len(ts_diff) - n_test:i+ len(ts_diff)]
+
+  print(f'Iteration {i+1}: Train : {len(train)}: Test : {len(test)}')
+
+
+#ReSampling
+import matplotlib.pyplot as plt
+plt.figure(figsize=(8,4))
+plt.plot(ts,label='Original Data')
+plt.title('Original Data')
+
+
+plt.figure(figsize=(8,4))
+dn_ts = ts.resample('D').ffill()
+plt.plot(dn_ts,label='Upsampling',color='red')
+plt.title("Upsampling")
+
+
+plt.figure(figsize=(8,4))
+up_ts = ts.resample('ME').ffill()
+plt.plot(up_ts,label='DownSampling',color='green')
+plt.title('DownSampling')
+plt.show()
+
+# Model Evaluation and BseLine
+
+train_split = int(len(series)*0.7)
+train , test = series[train_split:], series[:train_split]
+
+n_test = len(test)
+
+for i in range(n_test):
+
+  train_subset = test[:train_split+i]
+
+  validate = test[i]
+
+  metric = train_subset.mean()
+
+  print(f"Iteration: {i+1}, Training Set: {len(train_subset)}, Validating Set: {validate}, Metrics: {metric}")
+
+#Baseline Model
+train_split = int(len(series))
+baseline_predictions = [train.iloc[-1]]*len(test)
+rmse = sqrt(mean_squared_error(test.values,baseline_predictions))
+rmse
+
+# Plotting the baseline predictions vs actual values
+plt.figure(figsize=(10, 6))
+
+# Plot actual test values
+plt.plot(test.index, test.values, label='Actual', color='blue', linestyle='-', marker='o')
+
+# Plot baseline predictions
+plt.plot(test.index, baseline_predictions, label='Baseline Prediction', color='red', linestyle='--', marker='x')
+
+# Adding labels and title
+plt.title('Baseline Predictions vs Actual Test Values')
+plt.xlabel('Time')
+plt.ylabel('Values')
+plt.legend()
+
+# Show the plot
+plt.show()

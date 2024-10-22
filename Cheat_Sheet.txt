@@ -1,435 +1,797 @@
-ARIMA
-# Visualize the Data
-from pandas.plotting import lag_plot
+— Shell Commands
 
-lag_plot(series)
-series.plot()
-#we can see data is non-stationary
+Q1.
+Create Database as Msc_RollNo_NGD
 
-#To check the Stationarity
+use Msc_07_NGD
 
-from statsmodels.tsa.stattools import adfuller
+Crete three empty collections
 
-def adfuller_test(series):
-  result = adfuller(series)
-  print(result[0])
-  print(result[1])
+mongoimport --db <database_name> --collection <collection_name> --file <path_to_file> --type <file_type>
 
-  if result[1]<=0.05:
-    print("The Data is Stationary")
-  else:
-    print("The Data is Non-Stationary")
-adfuller_test(series)
+Display all records from the collection
 
+db.movies.find({})
 
-def adfuller_test(series):
-  results = adfuller(series.dropna())
-  return results[1]
+Display single record
 
-def adfuller_diff(series):
-  p_value = adfuller_test(series)
+db.movies.findOne()
 
-  diff_count = 0
-  while p_value > 0.05:
-    diff_count += 1
-    series = series.diff()
-    p_value = adfuller_test(series)
+Enable profiling for all the queries
 
-  return diff_count
+db.setProfilingLevel(2)
 
-adfuller_diff(series)
+Create Index
 
+db.movies.createIndex({_id:1})
+db.movies.getIndexes()
 
-#To check the Stationarity
-series = series.diff().dropna()
-from statsmodels.tsa.stattools import adfuller
-def adfuller_test(series):
-  result = adfuller(series)
-  print(result[0])
-  print(result[1])
+Display the records tracked by the profiler
 
-  if result[1]<=0.05:
-    print("The Data is Stationary")
-  else:
-    print("The Data is Non-Stationary")
-adfuller_test(series)
+db.system.profile.find({}).pretty()
 
-series.plot()
 
 
-## Auto Correlation Plot
-from pandas.plotting import autocorrelation_plot
+Q2. Attempt any 4 or 5 
 
-autocorrelation_plot(series)
-plt.show()
+Find data between year 2002 to 2006
 
+db.movies.find({‘year’:{$gte:2002,$lte:2006}})
+Rating is grater than reviews
 
-from statsmodels.graphics.tsaplots import plot_acf,plot_pacf
-import matplotlib.pyplot as plt
+db.movies.find({"tomatoes.rating":{$gte:"tomatoes.numReviews"}})
 
-fig, axes = plt.subplots(1,2,figsize=(12,8))
+Only display recording date, town, property type
 
-plot_acf(series.iloc[13:],lags=10,ax=axes[0])
-plot_pacf(series.iloc[13:],lags=10,ax=axes[1])
+db.movies.find({},{‘recording date’:1,’town’:1,”property type”:1,_id:0})
 
-plt.tight_layout()
-plt.show()
+To find all data where resinditial bank is blank
 
+db.movies.find({‘resenditial bank’:{$exists:false}})
 
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from statsmodels.tsa.arima.model import ARIMA
-from sklearn.metrics import mean_squared_error
-from math import sqrt
+To display list of unique property type
 
-train_size = int(len(series) * 0.7)
-train, test = series[:train_size], series[train_size:]
+db.movies.distinct(‘property type’)
 
-# Fit ARIMA model (set d=0 if differencing already done)
-model = ARIMA(train, order=(1, 1, 1))
-model_fit = model.fit()
+2. 
 
+To extract records where  Legislative District is between 30 to 40 and electric range less than 100
 
-# Plot diagnostics
-model_fit.plot_diagnostics(figsize=(12, 8))
-plt.show()
+db.movies.find({‘Legislative District’:{$gte :30, $lte:40},’electric’:{$lt:100}}})
 
-# Make predictions
-predictions = model_fit.predict(start=len(train), end=len(series)-1)
+Extract list of unique model
 
+db.movies.distinct(‘model’)
 
-# Calculate RMSE
-rmse = sqrt(mean_squared_error(test, predictions))
-print(f'RMSE: {rmse}')
+Extract count of records for tesla
 
+db.movies.countDocuments({‘model’:’Tesla’})
 
-# Plot actual vs predicted
-plt.figure(figsize=(10, 6))
-plt.plot(test.index,test, label='Actual', color='blue')
-plt.plot(test.index,predictions, color='red', label='Predicted')
-plt.title('Actual vs Predicted Values')
-plt.xlabel('Time')
-plt.ylabel('Values')
-plt.legend()
-plt.show()
+Extract VIN pin in ascending order
 
+db.movies.find().sort({‘VIN’:1})
 
-#3 Methods to check stationarity
+To Change Model from 500 to FIAT5
 
-# 1. Stationarity Check: Plotting
-plt.figure(figsize=(12,8))
-series.plot(title="To Check the data is Stationary",xlabel="Date",ylabel="Daily Temp")
-plt.axhline(y=series.mean(),color="r",linestyle='--',label="Mean")
-plt.axhline(y=series.median(),color="g",linestyle='--',label="Median")
-plt.legend()
-plt.show()
+db.movies.updateMany({‘model’:500},{$set:’model’:’FIAT5’})
 
-# 1. Stationarity Check: Statistics
+3. 
 
-split = int(len(series)/2)
-x1 , x2 = series[:split], series[split:]
-mean1, mean2 = x1.mean() , x2.mean()
-var1, var2 = x1.var(), x2.var()
+To extract records where occupation is null
 
-print(mean1," ",mean2)
-print(var1, " ",var2)
+db.movies.find({‘year’:null})
+Update occupation as “Not Working” where it is null
 
-print("---"*5)
+db.movies.updateMany({‘occupation’:null},{$set:{‘occupation’:’Not Working’}})
 
-if(abs(mean1 - mean2)<0.05) and (abs(var1 - var2)<1):
-  print("May be Stationary")
-else:
-  print("Not a Stationary")
 
-# 3. Stationarity Check: ADF Test
-res = adfuller(ts.values)
-print('ADF Statistic: ', res[0])
-print('p-value: ', res[1])
-for key, value in res[4].items():
-    print(f'Critical Value {key}: {value}')
+4.
+Extract the list of unique Model
 
-if res[1] <= 0.05:
-    print('Reject H0: Time series is stationary')
-else:
-    print('Do not reject H0: Time series is non-stationary')
+db.movies.distinct(‘model’)
 
-#Load and Basic Feature Engineering
+Extrat where utility contains ‘BONNE’
 
-#Exploration
-print(ts.head(5))
-print("---"*10)
-print(ts.tail(5))
-print("---"*10)
-print(ts.isnull().sum())
-print("---"*10)
-ts.describe()
+db.movies.find({‘utility’:{$regex:/BONNE/,options:’i’}})
 
-#Basic Feature Engineering
-df = pd.DataFrame({
-    'Year':ts.index.year,
-    'Month':ts.index.month,
-    'Day':ts.index.day,
-    'Roberries':ts.values
-})
+Extract contains Ca or IN or OH or WA
 
+db.movies.find({‘state’:{$regex:/Ca|IN|OH|WA/i}})
 
-#Rolling Window
-t = pd.DataFrame(ts.values)
-rolling_windows = t.rolling(window=3).agg(['min','mean','max'])
-t = pd.concat([rolling_windows,t],axis=1)
-t
+5.
 
+Find all data where property type is apartment or vacant land
 
+db.movies.find({‘property type’:’apartment’|;vacant land’})
 
-#ReSampling
-import matplotlib.pyplot as plt
-plt.figure(figsize=(8,4))
-plt.plot(ts,label='Original Data')
-plt.title('Original Data')
+To insert 5 records in the collection
 
+db.movies.insertMany([{_id:1,’name’:’Gautami’},_id:2,’name’:’Gautami’},_id:3,’name’:’Gautami’},_id:4,’name’:’Gautami’},_id:5,’name’:’Gautami’}])
 
-plt.figure(figsize=(8,4))
-dn_ts = ts.resample('D').ffill()
-plt.plot(dn_ts,label='Upsampling',color='red')
-plt.title("Upsampling")
+Return the count of documents in the collection
 
+db.movies.countDocuments()
 
-plt.figure(figsize=(8,4))
-up_ts = ts.resample('ME').ffill()
-plt.plot(up_ts,label='DownSampling',color='green')
-plt.title('DownSampling')
-plt.show()
+To extract 25 records from the 5th position
 
+db.movies.find({}).skip(4).limit(25)
 
-# Model Evaluation and BaseLine Prediction
+Extract records in descending order based on sales ratio
 
-#Model Evaluation
-ts_diff=ts.diff().dropna()
-train_size = int(len(ts_diff)*0.75)
-train , test = ts[train_size:],ts[:train_size]
+db.movies.find().sort({‘sales ratio’:-1})
 
-# Walk Forward Validation
-n_test = 10
-prediction = []
+— ChatGPT
 
-for i in range(len(ts_diff) - n_test):
-  train = ts_diff[:i + len(ts_diff)-n_test]
-  test = ts_diff[i + len(ts_diff) - n_test:i+ len(ts_diff)]
+// Q1: Database and Collection Operations
 
-  print(f'Iteration {i+1}: Train : {len(train)}: Test : {len(test)}')
+// Create Database
+use Msc_07_NGD
 
+// Create Three Empty Collections
+db.createCollection("collection1")
+db.createCollection("collection2")
+db.createCollection("collection3")
 
-#ReSampling
-import matplotlib.pyplot as plt
-plt.figure(figsize=(8,4))
-plt.plot(ts,label='Original Data')
-plt.title('Original Data')
+// Import Data from a File
+// mongoimport --db Msc_07_NGD --collection <collection_name> --file <path_to_file> --type <file_type> [additional_options]
 
+// Display All Records from the Collection
+db.movies.find({})
 
-plt.figure(figsize=(8,4))
-dn_ts = ts.resample('D').ffill()
-plt.plot(dn_ts,label='Upsampling',color='red')
-plt.title("Upsampling")
+// Display a Single Record
+db.movies.findOne()
 
+// Enable Profiling for All Queries
+db.setProfilingLevel(2)
 
-plt.figure(figsize=(8,4))
-up_ts = ts.resample('ME').ffill()
-plt.plot(up_ts,label='DownSampling',color='green')
-plt.title('DownSampling')
-plt.show()
+// Create an Index
+db.movies.createIndex({ _id: 1 })
 
-# Model Evaluation and BseLine
+// Get Indexes
+db.movies.getIndexes()
 
-train_split = int(len(series)*0.7)
-train , test = series[train_split:], series[:train_split]
+// Display Records Tracked by the Profiler
+db.system.profile.find({}).pretty()
 
-n_test = len(test)
+// Q2: Data Retrieval and Manipulation Operations
 
-for i in range(n_test):
+// Find Data Between Year 2002 to 2006
+db.movies.find({ 'year': { $gte: 2002, $lte: 2006 } })
 
-  train_subset = test[:train_split+i]
+// Rating is Greater than Reviews
+db.movies.find({ "tomatoes.rating": { $gte: "tomatoes.numReviews" } })
 
-  validate = test[i]
+// Only Display Recording Date, Town, Property Type
+db.movies.find({}, { 'recording date': 1, 'town': 1, 'property type': 1, _id: 0 })
 
-  metric = train_subset.mean()
+// To Find All Data Where Residential Bank is Blank
+db.movies.find({ 'residential bank': { $exists: false } })
 
-  print(f"Iteration: {i+1}, Training Set: {len(train_subset)}, Validating Set: {validate}, Metrics: {metric}")
+// To Display List of Unique Property Type
+db.movies.distinct('property type')
 
-#Baseline Model
-train_split = int(len(series))
-baseline_predictions = [train.iloc[-1]]*len(test)
-rmse = sqrt(mean_squared_error(test.values,baseline_predictions))
-rmse
+// To Extract Records Where Legislative District is Between 30 to 40 and Electric Range Less Than 100
+db.movies.find({ 'Legislative District': { $gte: 30, $lte: 40 }, 'electric': { $lt: 100 } })
 
-# Plotting the baseline predictions vs actual values
-plt.figure(figsize=(10, 6))
+// Extract List of Unique Model
+db.movies.distinct('model')
 
-# Plot actual test values
-plt.plot(test.index, test.values, label='Actual', color='blue', linestyle='-', marker='o')
+// Extract Count of Records for Tesla
+db.movies.countDocuments({ 'model': 'Tesla' })
 
-# Plot baseline predictions
-plt.plot(test.index, baseline_predictions, label='Baseline Prediction', color='red', linestyle='--', marker='x')
+// Extract VIN Pin in Ascending Order
+db.movies.find().sort({ 'VIN': 1 })
 
-# Adding labels and title
-plt.title('Baseline Predictions vs Actual Test Values')
-plt.xlabel('Time')
-plt.ylabel('Values')
-plt.legend()
+// To Change Model from 500 to FIAT5
+db.movies.updateMany({ 'model': 500 }, { $set: { 'model': 'FIAT5' } })
 
-# Show the plot
-plt.show()
+// To Extract Records Where Occupation is Null
+db.movies.find({ 'occupation': null })
 
-To perform exploratory data analysis (EDA) and prepare the dataset for time series forecasting, we'll follow these steps:
+// Update Occupation as “Not Working” Where It Is Null
+db.movies.updateMany({ 'occupation': null }, { $set: { 'occupation': 'Not Working' } })
 
-Steps for Exploratory Data Analysis and Data Preparation:
+// Extract the List of Unique Model
+db.movies.distinct('model')
 
-1. Load and Inspect Data: Load the dataset, inspect the data structure, and check for missing values or unwanted columns.
+// Extract Where Utility Contains ‘BONNE’
+db.movies.find({ 'utility': { $regex: /BONNE/, $options: 'i' } })
 
+// Extract Contains Ca or IN or OH or WA
+db.movies.find({ 'state': { $regex: /Ca|IN|OH|WA/i } })
 
-2. Feature Engineering:
+// Find All Data Where Property Type is Apartment or Vacant Land
+db.movies.find({ 'property type': { $in: ['apartment', 'vacant land'] } })
 
-Remove unnecessary columns.
+// To Insert 5 Records in the Collection
+db.movies.insertMany([
+    { _id: 1, 'name': 'Gautami' },
+    { _id: 2, 'name': 'Gautami' },
+    { _id: 3, 'name': 'Gautami' },
+    { _id: 4, 'name': 'Gautami' },
+    { _id: 5, 'name': 'Gautami' }
+])
 
-Handle missing values.
+// Return the Count of Documents in the Collection
+db.movies.countDocuments()
 
-Aggregate sales data by date (if the dataset has multiple entries for a single day).
+// To Extract 25 Records from the 5th Position
+db.movies.find({}).skip(4).limit(25)
 
+// Extract Records in Descending Order Based on Sales Ratio
+db.movies.find().sort({ 'sales ratio': -1 })
 
+—-- PyMongo
 
-3. Data Preparation:
+2. Perform the following
+Create a database as MSC Rollno_NGD
 
-Index the data with the time series.
+	db = client([‘Msc_07_NGD’])
 
-Handle any outliers or data anomalies.
+Create 3 empty collections and import the datasets into the collections
 
+col1 = db['Collection1']
+col2 = db['Collection2']
+col3 = db['Collection3']
 
+Display all records from the collections (python)
 
-4. Visualize: Plot the data to better understand trends, seasonality, and patterns.
+import pprint
+for i in col.find():
+    pprint.pprint(i)
 
+Display single record from the collections (python)
 
-5. Final Preparation: Prepare the data for modeling by ensuring it’s indexed as a time series.
+col.find_one()
 
+Create an index on the collections
 
+col.create_index({‘title’:1})
 
-Sample Code for EDA and Data Preparation:
+For i in col.list_indexes():
+	pprint.pprint(i)
 
-# Import necessary libraries
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+Enable profiling for all the queries
 
-# Step 1: Load and Inspect Data
-# Replace with your actual file path
-df = pd.read_csv(r'C:\path\to\your\furniture_sales.csv')
+db.command({‘profile’:2})
 
-# Check the first few rows of the data
-print(df.head())
+Display the records tracked by the profiler
+	For i in db.system.profile.find():
+	pprint.pprint(i)
 
-# Check the data types and missing values
-print(df.info())
 
-# Step 2: Remove Unwanted Columns
-# Assuming 'Sales' and 'Date' are the relevant columns, drop others if necessary
-# Replace 'unnecessary_column' with actual column names to drop if needed
-df = df.drop(['unnecessary_column_1', 'unnecessary_column_2'], axis=1, errors='ignore')
 
-# Step 3: Handle Missing Values
-# Check for missing values
-print(df.isnull().sum())
+Q5
 
-# Fill or drop missing values depending on the context
-df['Sales'].fillna(df['Sales'].mean(), inplace=True)  # Example: filling missing sales with mean
+1. 
 
-# Step 4: Convert Date Column to Datetime Format and Aggregate by Date
-df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d')  # Ensure correct date format
+a. To extract make, model, vehicle type
 
-# If there are multiple sales entries per date, aggregate by sum of sales for each date
-df = df.groupby('Date').agg({'Sales': 'sum'}).reset_index()
+For i in col.find({},{‘make’:1,’model’:1,’vehicle type’:1,_id:0}):
+	pprint.pprint(i)
 
-# Step 5: Set Date as Index and Check Time Series Structure
-df.set_index('Date', inplace=True)
-print(df.head())  # Check if Date is set as the index correctly
+b. To extract records where country is orange and city is buena park
 
-# Step 6: Visualize the Time Series Data
-plt.figure(figsize=(12,6))
-plt.plot(df['Sales'], label='Sales')
-plt.title('Furniture Sales Over Time')
-plt.xlabel('Date')
-plt.ylabel('Sales')
-plt.legend()
-plt.show()
+For i in col.find({‘country’:’orange’,’city’:’buena park’}):
+	pprint.pprint(i)
 
-# Step 7: Check for Outliers
-plt.figure(figsize=(10, 6))
-sns.boxplot(df['Sales'])
-plt.title('Sales Boxplot (Outlier Detection)')
-plt.show()
+c. To extract records where Electric range is greater than 250
 
-# Step 8: Final Preparation for Forecasting
-# Resample the data if necessary (e.g., monthly or weekly sales)
-# Example: Resample to monthly sales
-monthly_sales = df['Sales'].resample('M').sum()
+For i in col.find({‘Electric range’:{‘$gt’:250}}):
+	pprint.pprint(i)
 
-# Visualize the resampled data
-plt.figure(figsize=(12,6))
-plt.plot(monthly_sales, label='Monthly Sales')
-plt.title('Monthly Furniture Sales')
-plt.xlabel('Date')
-plt.ylabel('Sales')
-plt.legend()
-plt.show()
+d. To extract records where electric utility contains "BONNEVILLE" 
 
-# Data is now ready for applying statistical techniques of forecasting.
+For i in col.find({‘utility’:{‘$regex’:”.*BONNEVILLE.*”,’$options’:’i’}):
+	pprint.pprint(i)
 
-Explanation:
+e. To Insert 5 records
 
-1. Load and Inspect Data:
+new_cars = [ {"make": "Tesla", "model": "Model S", "vehicle_type": "Electric", "country": "USA", "electric_range": 350, "electric_utility": "BONNEVILLE POWER"}, {"make": "Chevrolet", "model": "Bolt", "vehicle_type": "Electric", "country": "USA", "electric_range": 259, "electric_utility": "PORTLAND"}, {"make": "Nissan", "model": "Leaf", "vehicle_type": "Electric", "country": "Japan", "electric_range": 150, "electric_utility": "TOKYO UTILITY"}, {"make": "BMW", "model": "i3", "vehicle_type": "Hybrid", "country": "Germany", "electric_range": 200, "electric_utility": "BONNEVILLE"}, {"make": "Audi", "model": "E-Tron", "vehicle_type": "Electric", "country": "Germany", "electric_range": 250, "electric_utility": "EUROPE UTILITY"} ]
 
-We start by loading the dataset and inspecting the first few rows to understand its structure, such as column names, data types, and any missing values.
+col.insert_many(new_cars)
 
 
 
-2. Feature Engineering:
+2. 
 
-We drop unwanted columns (like customer IDs, product details, etc.) that are not relevant for forecasting.
+a. To extract records where claims were made more than 3 times and claim amount is greater than 3000
 
-We handle missing values either by filling them (with the mean, median, or a forward fill) or by dropping rows if necessary.
+For i in col.find({‘claims’:{‘$gt’:3},’claim amount’:{‘$gt’:3000}}):
+	pprint.pprint(i)
 
-If there are multiple sales entries for the same date, we aggregate the sales by date using .groupby() and agg() functions.
+b. To count the number of records where car is used for private use
 
+col.count_documents({‘car’:’private’})
 
+c. To update scrap column with value as yes for model year less than 2000 
 
-3. Data Preparation:
+col.update_many({‘model’:{‘$lt’:2000}},{‘$set’:{‘scrap’:’yes’}})
 
-We convert the Date column to a datetime type and set it as the index, which is crucial for time series forecasting.
+d. To update occupation as "Not working" where it is null
 
-We resample the data to a monthly frequency if required and visualize the resampled data.
+col.update_many({‘occupation’:None},{‘$set’:{‘occupation’:’Not Working’}})
 
+e. To display all indexes created
 
+For i in col.list_indexes():
+	pprint.pprint(i)
 
-4. Outlier Detection:
 
-We use a boxplot to detect potential outliers in the sales data, which can be addressed later (e.g., capping outliers or removing them).
+3.
 
+a. To extract records where state does not contains CA or IN or OH or WA
 
+For i in col.find({‘state’:{‘$nin’:[‘CA’,’IN’,’OH’,’WA’]}}):
+	pprint.pprint(i)
 
-5. Final Preparation:
+b. To change the Model from 500 to FIAT 500
 
-The data is now indexed by time, aggregated, and cleaned, making it ready for forecasting. At this stage, we could apply statistical forecasting techniques like ARIMA or exponential smoothing.
+col.update_many({‘model’:500},{‘$set’:{‘model’:’FIAT500’}})
 
+c. extract records where Legislative District is between 30 to 40 and electric
+range less than 100
 
+For i in col.find({‘Legislative District’:{‘$gt’:30,’$lt’:40},’eletric range’:{‘lt’:100}}):
+		pprint.pprint(i)
 
 
-Additional Suggestions:
+d. To extract the count of records for Tesla make
 
-Handle Seasonality and Trends: Depending on the patterns seen in the time series, you may want to decompose the data to handle seasonality and trends before modeling.
+col.count_documents({‘make’:’Tesla’})
 
-Further Aggregation: You can further aggregate data by weeks or months depending on the forecast horizon and data granularity.
+e. To delete the record where model year is less than 2000
 
-Outliers: If significant outliers exist, they might need to be capped or investigated before applying the model.
+col.delete_many({‘year’:{‘$lt’:2000}})
 
+4.
 
-If you have specific data points or columns that need handling, feel free to share more details for further refinement.
+a. To find all data where residential type is blank
+
+	For i in col.find({‘residential’:{"$eq": ""}}):
+		pprint.pprint(i)
+
+b. To insert a collection of nearby cities for each property type 
+
+nearby_cities_data = [ {"property_type": "House", "nearby_cities": ["CityA", "CityB", "CityC"]}, {"property_type": "Apartment", "nearby_cities": ["CityD", "CityE", "CityF"]}, {"property_type": "Condo", "nearby_cities": ["CityG", "CityH", "CityI"]}, ] 
+
+real_estate_collection.insert_many(nearby_cities_data)
+
+c. To find all data where assessed amount is greater than sale amount
+
+For i in col.find({‘amount’:{‘$gt’:’sale’}}):
+	pprint.pprint(i)
+
+d. To delete records where non-use-code is Foreclosure
+
+col.delete_many({‘non-use-code’:’Foreclosure’})
+
+e. To extract the first 30 records based on Assessed amount  lowest first.
+
+For i in col.find({}).sort({‘Assessed Amount’:1}).limit(30):
+	pprint.pprint(i)
+
+
+5. 
+
+a. To add a column as scrap
+db.update_many({},{‘$set’:{‘scrap’:None}})
+
+
+b. To update scrap column with value as yes for model year less than 2000 
+
+col.update_many({‘model’:{‘$lt’:2000}},{‘$set’:{‘scrap’:’yes’}})
+
+c. To create an index on Model column
+
+col.create_index({‘model’:1})
+
+d. To query and use the index created
+
+For i in col.find({‘model’:’cars’}):
+	pprint.pprint(i)
+
+e. To delete the index created on Model column
+
+col.drop_index(‘model_1’)
+
+
+—--- ChatGPT
+
+from pymongo import MongoClient
+import csv
+import pprint
+
+# Step 1: Create a MongoDB database
+client = MongoClient('mongodb://localhost:27017/')  # Connect to MongoDB
+db = client['Msc_07_NGD']  # Create a database
+
+# Step 2: Create 3 collections within the database
+col1 = db['Collection1']
+col2 = db['Collection2']
+col3 = db['Collection3']
+
+# Step 3: Import a CSV file into the collections
+def import_csv_to_collection(csv_file_path, collection):
+    with open(csv_file_path, 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        data = [row for row in reader]  # Read all rows
+        collection.insert_many(data)  # Insert into MongoDB collection
+
+# Example CSV imports (change file path accordingly)
+import_csv_to_collection('path_to_csv_file_1.csv', col1)
+import_csv_to_collection('path_to_csv_file_2.csv', col2)
+import_csv_to_collection('path_to_csv_file_3.csv', col3)
+
+# Step 4: Display all records from a collection
+def display_all_records(collection):
+    for record in collection.find():
+        pprint.pprint(record)
+
+# Display all records from Collection1
+display_all_records(col1)
+
+# Step 5: Display a single record from a collection
+def display_single_record(collection):
+    pprint.pprint(collection.find_one())
+
+# Display a single record from Collection2
+display_single_record(col2)
+
+# Step 6: Create an index on 'title' in Collection1
+col1.create_index([('title', 1)])
+
+# Step 7: Display all indexes created
+def display_indexes(collection):
+    for index in collection.list_indexes():
+        pprint.pprint(index)
+
+# Display indexes for Collection1
+display_indexes(col1)
+
+# Step 8: Enable profiling for all queries
+db.command({'profile': 2})
+
+# Step 9: Display the records tracked by the profiler
+def display_profiler_data(db):
+    for record in db.system.profile.find():
+        pprint.pprint(record)
+
+display_profiler_data(db)
+
+# Step 10: Extract specific data from collections (Q5 examples)
+# Q5.1.a - Extract make, model, vehicle type
+for i in col1.find({}, {'make': 1, 'model': 1, 'vehicle type': 1, '_id': 0}):
+    pprint.pprint(i)
+
+# Q5.1.b - Extract records where country is 'orange' and city is 'buena park'
+for i in col1.find({'country': 'orange', 'city': 'buena park'}):
+    pprint.pprint(i)
+
+# Q5.1.c - Extract records where Electric range is greater than 250
+for i in col1.find({'Electric range': {'$gt': 250}}):
+    pprint.pprint(i)
+
+# Q5.1.d - Extract records where electric utility contains "BONNEVILLE"
+for i in col1.find({'utility': {'$regex': '.*BONNEVILLE.*', '$options': 'i'}}):
+    pprint.pprint(i)
+
+# Q5.1.e - Insert 5 records into Collection1
+new_cars = [
+    {"make": "Tesla", "model": "Model S", "vehicle_type": "Electric", "country": "USA", "electric_range": 350, "electric_utility": "BONNEVILLE POWER"},
+    {"make": "Chevrolet", "model": "Bolt", "vehicle_type": "Electric", "country": "USA", "electric_range": 259, "electric_utility": "PORTLAND"},
+    {"make": "Nissan", "model": "Leaf", "vehicle_type": "Electric", "country": "Japan", "electric_range": 150, "electric_utility": "TOKYO UTILITY"},
+    {"make": "BMW", "model": "i3", "vehicle_type": "Hybrid", "country": "Germany", "electric_range": 200, "electric_utility": "BONNEVILLE"},
+    {"make": "Audi", "model": "E-Tron", "vehicle_type": "Electric", "country": "Germany", "electric_range": 250, "electric_utility": "EUROPE UTILITY"}
+]
+col1.insert_many(new_cars)
+
+# Q5.2.a - Extract records where claims > 3 and claim amount > 3000
+for i in col2.find({'claims': {'$gt': 3}, 'claim amount': {'$gt': 3000}}):
+    pprint.pprint(i)
+
+# Q5.2.b - Count records where car is used for private use
+private_use_count = col2.count_documents({'car': 'private'})
+print(f"Number of records where car is for private use: {private_use_count}")
+
+# Q5.2.c - Update 'scrap' column to 'yes' for model year less than 2000
+col2.update_many({'model': {'$lt': 2000}}, {'$set': {'scrap': 'yes'}})
+
+# Q5.2.d - Update 'occupation' as "Not Working" where it is null
+col2.update_many({'occupation': None}, {'$set': {'occupation': 'Not Working'}})
+
+# Q5.2.e - Display all indexes created in Collection2
+display_indexes(col2)
+
+# Q5.3.a - Extract records where state does not contain CA, IN, OH, WA
+for i in col3.find({'state': {'$nin': ['CA', 'IN', 'OH', 'WA']}}):
+    pprint.pprint(i)
+
+# Q5.3.b - Change the model from 500 to FIAT 500
+col3.update_many({'model': 500}, {'$set': {'model': 'FIAT500'}})
+
+# Q5.3.c - Extract records where Legislative District is between 30 and 40 and electric range < 100
+for i in col3.find({'Legislative District': {'$gt': 30, '$lt': 40}, 'electric range': {'$lt': 100}}):
+    pprint.pprint(i)
+
+# Q5.3.d - Count records for Tesla make
+tesla_count = col3.count_documents({'make': 'Tesla'})
+print(f"Number of Tesla records: {tesla_count}")
+
+# Q5.3.e - Delete records where model year < 2000
+col3.delete_many({'year': {'$lt': 2000}})
+
+# Q5.4.a - Find all data where residential type is blank
+for i in col3.find({'residential': {"$eq": ""}}):
+    pprint.pprint(i)
+
+# Q5.4.b - Insert nearby cities collection for each property type
+nearby_cities_data = [
+    {"property_type": "House", "nearby_cities": ["CityA", "CityB", "CityC"]},
+    {"property_type": "Apartment", "nearby_cities": ["CityD", "CityE", "CityF"]},
+    {"property_type": "Condo", "nearby_cities": ["CityG", "CityH", "CityI"]},
+]
+db['real_estate_collection'].insert_many(nearby_cities_data)
+
+# Q5.4.c - Find data where assessed amount > sale amount
+for i in col3.find({'amount': {'$gt': 'sale'}}):
+    pprint.pprint(i)
+
+# Q5.4.d - Delete records where non-use-code is 'Foreclosure'
+col3.delete_many({'non-use-code': 'Foreclosure'})
+
+# Q5.4.e - Extract the first 30 records based on Assessed Amount (lowest first)
+for i in col3.find({}).sort([('Assessed Amount', 1)]).limit(30):
+    pprint.pprint(i)
+
+# Q5.5.a - Add a column as scrap in all documents
+db.update_many({}, {'$set': {'scrap': None}})
+
+# Q5.5.b - Update scrap column to 'yes' for model year less than 2000
+col3.update_many({'model': {'$lt': 2000}}, {'$set': {'scrap': 'yes'}})
+
+# Q5.5.c - Create an index on the 'model' column
+col3.create_index([('model', 1)])
+
+# Q5.5.d - Query and use the index created on 'model' column
+for i in col3.find({'model': 'cars'}):
+    pprint.pprint(i)
+
+# Q5.5.e - Delete the index created on 'model' column
+col3.drop_index('model_1')
+
+
+
+Priya code
+
+from pymongo import MongoClient
+#To create 3 empty collection in the required data  
+# Connect to MongoDB server
+client = MongoClient("mongodb://localhost:27017/")
+
+# Create a new database (it will be created automatically when a collection is created)
+db = client['MSc_Rollno_NGD']  # Replace with your database name
+
+# Create collections by inserting documents
+# Real Estate collection
+col=db['real_estate']
+db.real_estate.insert_one({})  # Inserts an empty document, creating the 'real_estate' collection
+
+# Electric Vehicle collection
+db.electric_vehicle.insert_one({})  # Inserts an empty document, creating the 'electric_vehicle' collection
+
+# Car Insurance collection
+db.car_insurance.insert_one({})  # Inserts an empty document, creating the 'car_insurance' collection
+
+print("Collections created successfully!")
+
+
+################################
+mo=client['MSc_Rollno_NGD']
+mo
+df=conn.list_database_names()
+df
+
+es=conn.get_database('MSc_Rollno_NGD')
+es
+
+df=es.list_collection_names()
+df
+####################################
+
+import pymongo
+import datetime
+import pprint # for fromatted output as an similar to  uniprint type 
+from pymongo import MongoClient
+
+conn = MongoClient("localhost",27017) # connecting with the local database where 27017 is a default port no
+#conn = MongoClient('mongodb+srv://root:root@sdbicluster.kifbcjy.mongodb.net/')# this connection is for MongoAtlas 
+print('connected',conn);
+# getting the list of  the database  
+dbl = conn.list_database_names()
+dbl
+#
+
+db=conn.get_database('MSC2024')
+db
+#to lis the collection 
+coll=db.list_collection_names()
+coll
+
+# to select the collections from database
+movies=db.get_collection('movies')
+print(movies)
+
+# To display Single record of  the data from the collection 
+rec = movies.find_one() 
+print(rec)
+
+# Find all records from the 'movies' collection
+records = movies.find()
+
+# Iterate over the cursor and print each record
+print("All Records:")
+for record in records:
+    print(record)
+
+
+    
+    
+# create an index on the collections 
+m_index= movies.create_index([('title',1)]) # 1 For Ascending
+print(m_index)
+
+m_index=movies.create_index([('title',-1)]) # -1 For dexscending
+print(m_index)
+
+
+#Enable profiling for all the queries
+# Enable profiling level 2 (profile all queries)
+db.command('profile', 2)
+
+print("Profiling enabled for all queries.")
+
+#Display the records track by the profiler
+profiled_records = db['system.profile'].find()
+
+# Iterate and display the profiled records
+print("Tracked records by profiler:")
+for record in profiled_records:
+    print(record)
+    
+
+
+
+## Q3
+#
+
+# a. To extract title, director, and genre
+result_a = movies_collection.find({}, {"title": 1, "director": 1, "genre": 1, "_id": 0})
+for doc in result_a:
+    print(doc)
+
+# b. To extract records where country is "Orange" and city is "Buena Park" (hypothetical data fields for movies)
+result_b = movies_collection.find({"country": "Orange", "city": "Buena Park"})
+for doc in result_b:
+    print(doc)
+
+# c. To extract records where the movie's rating is greater than 8
+result_c = movies_collection.find({"rating": {"$gt": 8}})
+for doc in result_c:
+    print(doc)
+
+# d. To insert 5 movie records
+movies_collection.insert_many([
+    {"title": "Inception", "director": "Christopher Nolan", "genre": "Sci-Fi", "release_year": 2010, "rating": 8.8},
+    {"title": "The Godfather", "director": "Francis Ford Coppola", "genre": "Crime", "release_year": 1972, "rating": 9.2},
+    {"title": "The Dark Knight", "director": "Christopher Nolan", "genre": "Action", "release_year": 2008, "rating": 9.0},
+    {"title": "Forrest Gump", "director": "Robert Zemeckis", "genre": "Drama", "release_year": 1994, "rating": 8.8},
+    {"title": "The Matrix", "director": "The Wachowskis", "genre": "Sci-Fi", "release_year": 1999, "rating": 8.7}
+])
+
+# e. To extract records where the production company contains "Warner Bros"
+result_e = movies_collection.find({"production_company": {"$regex": "Warner Bros", "$options": "i"}})
+for doc in result_e:
+    print(doc)
+
+
+###Q3- b
+
+# a. To extract records where the claims made are more than 3 and claim amount is greater than 3000
+# Hypothetical fields: claims_made, claim_amount (replace these with actual movie fields)
+result_a = movies_collection.find({"claims_made": {"$gt": 3}, "claim_amount": {"$gt": 3000}})
+for doc in result_a:
+    print(doc)
+
+# b. To count the number of records where the car is used for private use
+# Hypothetical field: usage (replace with actual movie fields)
+private_use_count = movies_collection.count_documents({"usage": "private"})
+print("Number of movies where usage is private:", private_use_count)
+
+# c. To update a column (hypothetical 'serap' field) with value 'yes' for movies released before the year 2000
+# Replace 'serap' with an actual field name
+movies_collection.update_many({"release_year": {"$lt": 2000}}, {"$set": {"serap": "yes"}})
+
+# d. To update 'chupation' as "Not working" where it is null (replace with actual field name)
+# Replace 'chupation' with an actual field name
+movies_collection.update_many({"chupation": None}, {"$set": {"chupation": "Not working"}})
+
+# e. To display all indexes created in the movies collection
+indexes = movies_collection.index_information()
+for index_name, index_info in indexes.items():
+    print(f"Index Name: {index_name}, Index Info: {index_info}")
+
+
+
+
+# Q3-c
+
+
+
+# Query a: Change the title from "500" to "FIAT500" where country does not contain "CA" or "16"
+movies_collection.update_many(
+    {"title": "500", "country": {"$nin": ["CA", "16"]}},
+    {"$set": {"title": "FIAT500"}}
+)
+print("Titles updated from '500' to 'FIAT500' where country is not CA or 16.")
+
+# Query b: Extract records where Legislative District is IN, OH, or WA, and age rating is between 30 to 40, and runtime is less than 100 minutes
+result_b = movies_collection.find(
+    {"legislative_district": {"$in": ["IN", "OH", "WA"]}, 
+     "age_rating": {"$gte": 30, "$lte": 40}, 
+     "runtime": {"$lt": 100}}
+)
+print("\nMovies that match the criteria:")
+for doc in result_b:
+    print(doc)
+
+# Query c: Extract the count of records for Tesla make (assuming Tesla as production company)
+tesla_count = movies_collection.count_documents({"production_company": "Tesla"})
+print(f"\nNumber of movies produced by Tesla: {tesla_count}")
+
+# Query d: Delete the record where the release year is less than 2000
+delete_result = movies_collection.delete_many({"release_year": {"$lt": 2000}})
+print(f"\nDeleted {delete_result.deleted_count} movies released before the year 2000.")
+
+# Query e: Extract the count of records for a specific director (e.g., Christopher Nolan)
+director_count = movies_collection.count_documents({"director": "Christopher Nolan"})
+print(f"\nNumber of movies directed by Christopher Nolan: {director_count}")
+
+
+
+
+# Q3-d
+
+
+
+# Query a: Find all data where genre is blank (equivalent to residential type being blank)
+result_a = movies_collection.find({"genre": ""})
+print("\nMovies where genre is blank:")
+for doc in result_a:
+    print(doc)
+
+# Query b: Insert a collection of nearby cities for each movie genre (property type)
+movies_collection.update_many(
+    {}, 
+    {"$set": {"nearby_cities": ["New York", "Los Angeles", "Chicago"]}}  # Example nearby cities
+)
+print("\nNearby cities inserted for all movie records.")
+
+# Query c: Find all data where the box office amount is greater than the budget (equivalent to assessed amount being greater than sale amount)
+result_c = movies_collection.find({"box_office": {"$gt": "budget"}})
+print("\nMovies where box office is greater than budget:")
+for doc in result_c:
+    print(doc)
+
+# Query d: Delete records where the rating is 'Foreclosure' (equivalent to non-use-code being 'Foreclosure')
+delete_result_d = movies_collection.delete_many({"rating": "Foreclosure"})
+print(f"\nDeleted {delete_result_d.deleted_count} movies with rating 'Foreclosure'.")
+
+# Query e: Extract the first 30 records based on budget, sorted from lowest to highest
+result_e = movies_collection.find({}).sort("budget", 1).limit(30)
+print("\nFirst 30 movies sorted by budget in ascending order:")
+for doc in result_e:
+    print(doc)
+
+
 

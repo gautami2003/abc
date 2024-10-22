@@ -1057,6 +1057,83 @@ movies_with_large_cast = collection.find({'cast': {'$size': {'$gt': 3}}})
 
 from bson.objectid import ObjectId
 
+
+
+
+Operators
+
+5 Key Words
+
+Slice 
+
+Use to slice on array
+It is limited to number of elements in the array
+
+ db.movies.findOne({},{'title':1,'cast':1,'writer':1,'year':1,'_id':0})
+db.movies.find({},{'title':1,'cast':1,'writer':1,'year':1,'_id':0})
+
+
+db.movies.find({},{'title':1,'cast':1,'writers':{$slice:2},'year':1,'_id':0})
+It will show the first two records for the Writers
+
+Last from writers if 
+db.movies.find({},{'title':1,'cast':1,'writers':{$slice:-2},'year':1,'_id':0})
+
+
+
+mod
+
+ db.movies.find({'year':{$mod:[3,1]}},{'year':1,'_id':0})
+
+
+
+size
+	
+	Give the size of the elements
+	
+	
+Size of Documents
+ db.movies.find({},{'year':1,'_id':0}).size(2)	
+	db.movies.find({'cast': {$size: 2}}, {'_id': 0}).pretty().limit(2)
+	
+
+	
+exists
+
+	Checking the existence of the element
+	
+where
+
+
+	Same as used in SQL
+
+INDEX
+
+db.movies.createIndex({'Title':1})
+
+db.movies.getIndexes()
+
+
+
+
+
+
+db.setProfilingLevel(2)
+
+
+
+
+
+db.setProfilingLevel(2)
+
+db.movies.find({},{'runtime':1,'_id':0}).sort({'runtime':1}).hint()
+
+
+Index is probably not there in indexes
+How you going to optimizing your database pr tunning your database 
+Enabling profilers of all queries
+
+
 delete_id = ObjectId('573a13f9f29313caabdeb7f5')
 collection.delete_one({'_id': delete_id})
 print(f"Document with _id {delete_id} deleted.")

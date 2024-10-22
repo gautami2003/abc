@@ -795,3 +795,270 @@ for doc in result_e:
 
 
 
+
+Case Study
+
+NGD 
+CASE STUDY 
+Roll No : 07
+
+Q1. Create a database and a collection for storing play store apps details and user reviews. 
+
+
+
+
+Q2. Insert data into the collections. After importing googleplaystore.csv create another collection in the same database and import the googleplaystore_user_reviews.csv 
+
+
+
+
+
+
+After importing googleplaystore.csv create another collection in the same database and import the googleplaystore_user_reviews.csv 
+
+
+
+
+
+
+Q3. Write a query to display data of all apps. 
+
+use playstoreDB; 
+db.[“apps”].find() 
+
+
+
+
+Q4. Write a query to display data based where category is “shopping”. 
+
+db.apps.find({'Category':'SHOPPING'}) 
+
+
+
+Q5. Write a query to sort the data in ascending order based on reviews.
+
+db.apps.find().sort({'reviews':1}) 
+
+
+
+Q6. Write a query to return first 25 records based on highest reviews. 
+
+db.apps.find().limit(25).sort({'Reviews':-1}) 
+
+
+
+Q7. Write a query to return the count of records where category is “education”. 
+
+db.apps.countDocuments({'Category':'EDUCATION'}) 
+
+
+
+Q8. Write a query to return a list of unique genres. 
+
+db.apps.distinct('Genres') 
+
+
+
+Q9. Write a query to return all apps where rating is greater than “4.0”. 
+
+db.apps.find({'Rating':{$gt:4.0}})
+
+
+
+Q10. Write a query to return all apps where reviews are less than “100”. 
+
+db.apps.find({'Reviews':{$lt:100}})
+
+
+
+Q11. Write a query to return all apps where rating is less than or equal to “2.0”. 
+
+db.apps.find({'Rating':{$lte:2.0}})
+
+
+
+Q12. Write a query to return all apps where ratings are “3.5 or 3.9 or 4.2 or 4.7”. 
+
+db.apps.find({'Rating':{$in:[3.5,3.9,4.2,4.7]}})
+
+
+
+Q13. Write a query to return all apps where ratings are greater than 4 or reviews are less than 10000. 
+
+db.apps.find({$or:[{'Rating':{$gt:4.0}},{'Reviews':{$lt:1000}}]}) 
+
+
+
+Q14. Write a query to return all apps where reviews are in odd numbers. 
+
+db.apps.find({'Reviews':{$mod:[2,1]}}) 
+
+
+
+Q15. Write a query to update empty reviews to 0 
+
+db.apps.updateMany({'Reviews':""},{$set:{'Reviews':0}})
+
+
+
+Q16. Explain atomic operations and explain operators which can atomically update an element. 
+
+$set: Updates the value of a field. 
+$inc: Increments the value of a field. 
+$unset: Removes a field. 
+
+Eg: BEFORE UPDATING Reviews: 
+db.apps.findOne({_id: ObjectId(‘6706af017a100ab0e88ae146’)}) 
+
+
+
+UPDATING: 
+
+db.apps.updateOne({_id: ObjectId(''6706af017a100ab0e88ae146')},{$inc:{'Reviews':1}}) 
+
+
+
+AFTER UPDATING: 
+
+db.apps.findOne({_id: ObjectId('6706af017a100ab0e88ae146')}) 
+
+
+
+Q17. Write a query to rename a collection to a “newstoreapps”. 
+
+db.apps.renameCollection('newsstoreapps') 
+
+
+
+Q18. Write a query to delete an element from the collection where rating is 1. 
+
+db.newsstoreapps.deleteOne({'Rating':1}) 
+
+
+
+Q19. Write queries to delete all elements from collection and then delete the collection. 
+
+db.newsstoreapps.deleteMany({})
+
+
+
+db.newsstoreapps.drop() 
+
+
+
+Q20. Write queries to create and use indexes. 
+
+Creating index on user_reviews 
+
+db.user_reviews.createIndex({'App':1})
+
+
+
+Use of Index 
+
+db.user_reviews.find({ App: 'Facebook' }).explain('executionStats') 
+
+
+
+Look for, "IXSCAN" in the executionStages of the explain output. This stands for Index Scan, which means the query is using an index.
+
+
+Assignemnt
+
+Python MongoDB Assignment
+1. Python Script to Print All Movies with IMDb Votes Greater than 15
+
+from pymongo import MongoClient
+
+client = MongoClient("mongodb://localhost:27017/")
+db = client['movieDB']
+collection = db['movies']
+
+# Find all movies where imdb votes are greater than 15
+movies = collection.find({'imdb.votes': {'$gt': 15}})
+
+for movie in movies:
+    print(movie['title'])
+
+2. Python Script to Print Movie Title, Runtime, Cast, and Directors Using _id
+
+from bson.objectid import ObjectId
+
+col.find_one(
+    {'_id': ObjectId('573a1390f29313caabcd42e8')},
+    {'title': 1, 'runtime': 1, 'cast': 1, 'directors': 1, '_id': 0}
+)
+
+3. Python Script to Print First 10 Movies in Sorted Order Based on Release Year
+
+movies = collection.find().sort('year', 1).limit(10)
+
+for movie in movies:
+    print(movie['title'], movie['year'])
+
+
+4. Python Script to Insert 5 Documents
+
+new_movies = [
+    {'title': 'Movie 1', 'year': 2021, 'genre': 'Action'},
+    {'title': 'Movie 2', 'year': 2022, 'genre': 'Drama'},
+    {'title': 'Movie 3', 'year': 2020, 'genre': 'Comedy'},
+    {'title': 'Movie 4', 'year': 2023, 'genre': 'Thriller'},
+    {'title': 'Movie 5', 'year': 2019, 'genre': 'Horror'}
+]
+
+collection.insert_many(new_movies)
+print("Inserted 5 new documents.")
+
+
+5. Python Script to Add Country Name India, Where Genre is Thriller
+
+collection.update_many({'genre': 'Thriller'}, {'$set': {'country': 'India'}})
+print("Country 'India' added to all Thriller genre movies.")
+
+
+6. Python Script to Update Runtime by 30 Mins
+
+collection.update_many({}, {'$inc': {'runtime': 30}})
+print("Runtime updated by 30 minutes for all movies.")
+
+
+7. Python Script to Create an Index and Use It
+
+collection.create_index([('title', 1)])
+print("Index created on the 'title' field.")
+
+
+8. Python Script to Explain (gt, lte, ne, or) Operators
+
+# (gt) Greater Than
+movies_gt = collection.find({'imdb.votes': {'$gt': 10}})
+
+# (lte) Less Than or Equal To
+movies_lte = collection.find({'imdb.votes': {'$lte': 50}})
+
+# (ne) Not Equal To
+movies_ne = collection.find({'genre': {'$ne': 'Horror'}})
+
+# (or) Logical OR
+movies_or = collection.find({'$or': [{'genre': 'Action'}, {'genre': 'Drama'}]})
+
+
+9. Python Script to Explain Working with Arrays Using Operators
+
+# Check if 'Action' is in the genre array
+movies_with_action = collection.find({'genre': {'$in': ['Action']}})
+
+# Check if the movie has more than 3 cast members
+movies_with_large_cast = collection.find({'cast': {'$size': {'$gt': 3}}})
+
+
+10. Python Script to Delete a Document Based on ObjectId
+
+from bson.objectid import ObjectId
+
+delete_id = ObjectId('573a13f9f29313caabdeb7f5')
+collection.delete_one({'_id': delete_id})
+print(f"Document with _id {delete_id} deleted.")
+
+

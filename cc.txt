@@ -1,0 +1,84 @@
+Create Company
+1. SS of Company Created
+2. SS of Contact
+3. SS of overview
+Create a Website
+1. SS of Website preview
+Create a Domain
+1. SS of created Domain
+Create Workflow
+1. SS of created workflow
+Create Chatflow
+1. SS of Inbox
+
+1. How many buckets can you create in Amazon S3?
+•	By default, you can create 100 buckets per AWS account. However, this limit can be increased by requesting an AWS service limit increase.
+________________________________________
+2. What do you understand about the standard bucket in Amazon S3?
+•	A standard bucket in Amazon S3 refers to a storage bucket that uses the S3 Standard storage class.
+•	Key Features:
+o	High durability (99.999999999% or "11 nines").
+o	Low-latency and high throughput.
+o	Suitable for frequently accessed data.
+o	Default storage class in S3.
+________________________________________
+3. What is a Private Cloud and what is a Public Cloud?
+•	Private Cloud:
+o	A cloud computing environment exclusively used by a single organization.
+o	Hosted on-premises or by a third-party provider.
+o	Example: VMware Cloud, OpenStack, AWS Outposts.
+•	Public Cloud:
+o	A cloud service provided by third-party providers over the internet.
+o	Shared infrastructure among multiple customers.
+o	Example: AWS, Microsoft Azure, Google Cloud Platform.
+________________________________________
+4. What is the difference between IaaS, PaaS, and SaaS?
+Feature	IaaS (Infrastructure as a Service)	PaaS (Platform as a Service)	SaaS (Software as a Service)
+Definition	Provides virtualized computing resources.	Provides a platform for development and deployment.	Provides ready-to-use applications over the internet.
+Control	Users manage OS, applications, and networking.	Users manage applications only.	Users have no control over backend infrastructure.
+Example	AWS EC2, Google Compute Engine.	AWS Elastic Beanstalk, Google App Engine.	Gmail, Google Drive, Microsoft 365.
+________________________________________
+5. Difference between Disaster Recovery and Data Center?
+•	Disaster Recovery (DR):
+o	A strategy to restore IT infrastructure and data after a failure or disaster.
+o	Can involve backups, failover systems, replication, and cloud-based recovery.
+•	Data Center:
+o	A physical location housing servers, storage, and networking equipment.
+o	May or may not have disaster recovery mechanisms.
+Example:
+•	A company without DR may lose all data if its data center is destroyed.
+•	A company with DR can restore operations using cloud backups.
+________________________________________
+6. Advantages of Cloud Computing
+1.	Cost-Efficient – No need for expensive hardware and maintenance.
+2.	Scalability – Resources can be increased or decreased on demand.
+3.	Flexibility – Accessible from anywhere over the internet.
+4.	Disaster Recovery – Cloud services provide backup and recovery options.
+5.	Security – Cloud providers offer encryption, IAM, and compliance standards.
+6.	Automatic Updates – Cloud services receive automatic software updates.
+________________________________________
+7. Difference between On-Premises Cloud, Public Cloud, and Private Cloud
+Feature	On-Premises Cloud	Public Cloud	Private Cloud
+Infrastructure	Managed internally	Managed by a provider	Dedicated to one organization
+Cost	High (CapEx)	Pay-as-you-go (OpEx)	High setup cost but low OpEx
+Scalability	Limited	Highly Scalable	Scalable but requires hardware upgrades
+Security	High	Moderate	High
+Example	Company data centers	AWS, Azure	OpenStack, VMware Cloud
+________________________________________
+8. What is a Distributed System?
+•	A distributed system is a network of independent computers that work together as a single system.
+•	Used in cloud computing, microservices, and big data processing.
+Examples:
+•	Google Search (runs across many data centers).
+•	Hadoop (distributed data processing).
+________________________________________
+9. What is Cloud Computing?
+•	Cloud computing is the delivery of computing services (such as servers, storage, databases, networking, software, and analytics) over the internet.
+•	Characteristics:
+o	On-demand self-service.
+o	Broad network access.
+o	Resource pooling.
+o	Rapid elasticity.
+o	Pay-as-you-go pricing.
+Examples of Cloud Providers: AWS, Google Cloud, Microsoft Azure.
+
